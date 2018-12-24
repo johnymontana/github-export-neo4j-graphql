@@ -1,8 +1,7 @@
-import { ApolloServer, gql } from "apollo-server";
+import { ApolloServer } from "apollo-server";
 import { makeAugmentedSchema } from "neo4j-graphql-js";
 import { v1 as neo4j } from "neo4j-driver";
 
-// Construct a schema, using GraphQL schema language
 const typeDefs = `
   type Repository {
     url: ID!
@@ -12,7 +11,25 @@ const typeDefs = `
     website: String
     webhooks: [Webhook] @relation(name: "HAS_WEBHOOK", direction: "OUT")
     pull_requests: [PullRequest] @relation(name: "BASE", direction: "IN")
+    issues: [Issue] @relation(name: "HAS_ISSUE", direction: "OUT")
     pr_count: Int @cypher(statement: "RETURN SIZE((this)<-[:BASE]-())")
+  }
+
+  type Issue {
+    url: ID!
+    title: String
+    body: String
+    created_at: DateTime
+    closed_at: DateTime
+    comments: [IssueComment]
+    repository: Repository @relation(name: "HAS_ISSUE", direction: "IN")
+  }
+
+  type IssueComment {
+    url: ID!
+    body: String
+    created_at: DateTime
+    user: User @relation(name: "AUTHORED", direction: "IN")
   }
 
   type PullRequest {
@@ -60,5 +77,5 @@ const server = new ApolloServer({
 });
 
 server.listen().then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`);
+  console.log(`🚀🚀🚀 Server ready at ${url}`);
 });
