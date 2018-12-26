@@ -11,8 +11,10 @@ const typeDefs = `
     website: String
     webhooks: [Webhook] @relation(name: "HAS_WEBHOOK", direction: "OUT")
     pull_requests: [PullRequest] @relation(name: "BASE", direction: "IN")
+    collaborators: [User] @relation(name: "COLLABORATES", direction: "IN")
     issues: [Issue] @relation(name: "HAS_ISSUE", direction: "OUT")
     pr_count: Int @cypher(statement: "RETURN SIZE((this)<-[:BASE]-())")
+    issue_count: Int @cypher(statement: "RETURN SIZE((this)-[:HAS_ISSUE]->())")
   }
 
   type Issue {
@@ -23,6 +25,7 @@ const typeDefs = `
     closed_at: DateTime
     comments: [IssueComment]
     repository: Repository @relation(name: "HAS_ISSUE", direction: "IN")
+    author: User @relation(name: "OPENED", direction: "IN")
   }
 
   type IssueComment {
@@ -56,6 +59,7 @@ const typeDefs = `
 
   type Webhook {
     url: ID!
+    repositories: [Repository] @relation(name: "HAS_WEBHOOK", direction: "IN")
   }
 `;
 
@@ -77,5 +81,5 @@ const server = new ApolloServer({
 });
 
 server.listen().then(({ url }) => {
-  console.log(`🚀🚀🚀 Server ready at ${url}`);
+  console.log(`🚀🚀🚀 GraphQL ready at ${url} 🚀🚀🚀`);
 });
